@@ -1,0 +1,27 @@
+# R specific files
+.Rhistory
+.RData
+.Rproj.user
+*.Rproj
+
+# Output files
+*.pdf
+*.png
+*.jpg
+*.eps
+*.ps
+
+# Temporary files
+*~
+.DS_Store
+Thumbs.db
+
+# Results that are generated
+results/*.csv
+results/*.rds
+figures/*.pdf
+figures/*.png
+
+# Keep directory structure but ignore generated content
+!results/.gitkeep
+!figures/.gitkeep
