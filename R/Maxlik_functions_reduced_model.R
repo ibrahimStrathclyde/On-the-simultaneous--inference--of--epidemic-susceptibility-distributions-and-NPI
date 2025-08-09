@@ -739,128 +739,185 @@ fit2_het_1epic_loglik_noNPI <- function(dat) {
 #' @param n_points Number of points for profile (default: 15)
 #' @param plot Whether to create profile likelihood plot (default: TRUE)
 #' @return List containing profile results, plot, MLE, and confidence intervals
-profile_likelihood_reducedm <- function(sim_data, param_to_profile, 
-                                        value_range = NULL, n_points = 15, plot = TRUE) {
+profile_likelihood_reducedm <- function(sim_data, param_to_profile, value_range = NULL, 
+                                        n_points = 15, plot = TRUE, custom_title = NULL) {
   
-  # First fit the model to get MLE estimates
+  # First fit the model to get MLE
   mle_fit <- fit4_reducedm_loglik.NPI(dat = sim_data)
   mle_params <- mle_fit$parms
   mle_trans_params <- mle_fit$trans_parms
   
-  # Determine parameter range using Hessian if available
-  if (!is.null(mle_fit$trans_hessian) && is.null(value_range)) {
+  # Process Hessian matrix to set appropriate parameter range
+  if (!is.null(mle_fit$trans_hessian)) {
     tryCatch({
-      # Calculate covariance matrix and standard errors
       z_variance <- solve(mle_fit$trans_hessian)
       z_se <- sqrt(diag(z_variance))
       
       # Identify parameter index
-      param_index <- switch(param_to_profile,
-                            "R0" = 1, "v" = 2, "t0" = 3, "c_value2" = 4,
-                            stop("Unknown parameter: ", param_to_profile))
+      if(param_to_profile == "R0") param_index <- 1
+      else if(param_to_profile == "v") param_index <- 2
+      else if(param_to_profile == "t0") param_index <- 3
+      else if(param_to_profile == "c_value2") param_index <- 4
       
-      # Set range based on ± 3 standard errors in transformed space
-      se <- z_se[param_index]
-      trans_center <- mle_trans_params[param_index]
-      trans_lower <- trans_center - 3 * se
-      trans_upper <- trans_center + 3 * se
-      
-      # Transform back to natural scale
-      if (param_to_profile %in% c("R0", "v", "t0")) {
-        value_range <- seq(exp(trans_lower), exp(trans_upper), length.out = n_points)
-      } else if (param_to_profile == "c_value2") {
-        value_range <- seq(expit(trans_lower), expit(trans_upper), length.out = n_points)
+      # Set range based on Hessian if not provided
+      if(is.null(value_range)) {
+        se <- z_se[param_index]
+        trans_lower <- mle_trans_params[param_index] - 2.5 * se
+        trans_upper <- mle_trans_params[param_index] + 2.5 * se
+        
+        if(param_to_profile %in% c("R0", "v", "t0")) {
+          value_range <- seq(exp(trans_lower), exp(trans_upper), length.out = n_points)
+        } else if(param_to_profile == "c_value2") {
+          value_range <- seq(expit(trans_lower), expit(trans_upper), length.out = n_points)
+        }
       }
     }, error = function(e) {
-      # Fallback to default ranges if Hessian fails
-      value_range <<- switch(param_to_profile,
-                             "R0" = seq(1.5, 4.5, length.out = n_points),
-                             "v" = seq(0.5, 3.0, length.out = n_points),  
-                             "t0" = seq(8, 25, length.out = n_points),
-                             "c_value2" = seq(0.1, 0.8, length.out = n_points)
-      )
+      # Fallback to default range if Hessian is not invertible
+      if(is.null(value_range)) {
+        if(param_to_profile == "R0") {
+          value_range <- seq(max(0.5, mle_params["R0"] * 0.7), mle_params["R0"] * 1.3, length.out = n_points)
+        } else if(param_to_profile == "v") {
+          value_range <- seq(max(0.1, mle_params["v"] * 0.7), mle_params["v"] * 1.3, length.out = n_points)
+        } else if(param_to_profile == "t0") {
+          value_range <- seq(max(1, mle_params["t0"] * 0.8), mle_params["t0"] * 1.2, length.out = n_points)
+        } else if(param_to_profile == "c_value2") {
+          value_range <- seq(max(0.1, mle_params["c_value2"] * 0.7), min(0.9, mle_params["c_value2"] * 1.3), length.out = n_points)
+        }
+      }
     })
-  } else if (is.null(value_range)) {
-    # Default ranges when no Hessian available
-    value_range <- switch(param_to_profile,
-                          "R0" = seq(1.5, 4.5, length.out = n_points),
-                          "v" = seq(0.5, 3.0, length.out = n_points),
-                          "t0" = seq(8, 25, length.out = n_points), 
-                          "c_value2" = seq(0.1, 0.8, length.out = n_points)
-    )
   }
   
-  # Perform profile likelihood calculation
+  # Initialize results dataframe
   profile_results <- data.frame(
     param_value = value_range,
-    neg_loglik = numeric(length(value_range))
+    neg_loglik = NA,
+    R0 = NA,
+    v = NA,
+    t0 = NA,
+    c_value2 = NA
   )
   
-  # For each parameter value, optimize over remaining parameters
-  for (i in seq_along(value_range)) {
-    # Create objective function with fixed parameter
-    profile_obj <- function(par_subset) {
-      # Reconstruct full parameter vector
-      if (param_to_profile == "R0") {
-        full_par <- c(log(value_range[i]), par_subset)
-      } else if (param_to_profile == "v") {
-        full_par <- c(par_subset[1], log(value_range[i]), par_subset[2:3])
-      } else if (param_to_profile == "t0") {
-        full_par <- c(par_subset[1:2], log(value_range[i]), par_subset[3])
-      } else if (param_to_profile == "c_value2") {
-        full_par <- c(par_subset, logit(value_range[i]))
-      }
-      
+  # Get the true values from global environment if available
+  true_values <- list(
+    R0 = if(exists("R0_spec")) R0_spec else mle_params["R0"],
+    v = if(exists("CV_true")) CV_true else mle_params["v"],
+    t0 = if(exists("t0_spec")) t0_spec else mle_params["t0"],
+    c_value2 = if(exists("c_value2_spec")) c_value2_spec else mle_params["c_value2"]
+  )
+  
+  # Set initial state if not already set globally
+  if(!exists("initial_state", envir = .GlobalEnv)) {
+    assign("initial_state", c(S = 99920, E = 60, I = 24, R = 0, C = 0), envir = .GlobalEnv)
+  }
+  
+  # Profile over parameter values
+  for(i in 1:length(value_range)) {
+    profile_value <- value_range[i]
+    
+    # Transform to the appropriate scale
+    if(param_to_profile == "R0") {
+      profile_trans_value <- log(profile_value)
+      param_index <- 1
+    } else if(param_to_profile == "v") {
+      profile_trans_value <- log(profile_value)
+      param_index <- 2
+    } else if(param_to_profile == "t0") {
+      profile_trans_value <- log(profile_value)
+      param_index <- 3
+    } else if(param_to_profile == "c_value2") {
+      profile_trans_value <- logit(profile_value)
+      param_index <- 4
+    }
+    
+    # Get other parameter indices
+    other_indices <- setdiff(1:4, param_index)
+    start_par <- mle_trans_params[other_indices]
+    
+    # Optimize the other parameters while fixing the profiled one
+    profile_obj_fn <- function(par, fixed_param_index, fixed_value) {
+      full_par <- numeric(4)
+      full_par[fixed_param_index] <- fixed_value
+      full_par[other_indices] <- par
       return(f4_optim_reducedm.NPI(full_par, sim_data))
     }
     
-    # Get starting values (remove the fixed parameter)
-    start_subset <- switch(param_to_profile,
-                           "R0" = mle_trans_params[-1],
-                           "v" = mle_trans_params[-2], 
-                           "t0" = mle_trans_params[-3],
-                           "c_value2" = mle_trans_params[-4]
-    )
+    opt_result <- tryCatch({
+      optim(
+        par = start_par,
+        fn = profile_obj_fn,
+        fixed_param_index = param_index,
+        fixed_value = profile_trans_value,
+        method = "Nelder-Mead",
+        control = list(maxit = 1000)
+      )
+    }, error = function(e) {
+      list(value = NA, par = rep(NA, length(start_par)))
+    })
     
-    # Optimize over remaining parameters
-    opt_result <- optim(
-      par = start_subset,
-      fn = profile_obj,
-      method = "Nelder-Mead",
-      control = list(trace = 0, maxit = 1500)
-    )
-    
+    # Store results
     profile_results$neg_loglik[i] <- opt_result$value
+    
+    # Store optimized parameters
+    opt_full_par <- numeric(4)
+    opt_full_par[param_index] <- profile_trans_value
+    opt_full_par[other_indices] <- opt_result$par
+    
+    # Transform back to original scale
+    profile_results$R0[i] <- exp(opt_full_par[1])
+    profile_results$v[i] <- exp(opt_full_par[2])
+    profile_results$t0[i] <- exp(opt_full_par[3])
+    profile_results$c_value2[i] <- expit(opt_full_par[4])
   }
   
-  # Calculate confidence intervals (using chi-square threshold)
-  max_loglik <- -min(profile_results$neg_loglik)
-  conf_threshold <- qchisq(0.95, df = 1) / 2  # 95% CI threshold
-  ci_threshold <- max_loglik - conf_threshold
+  # Remove NA values
+  profile_results <- profile_results[!is.na(profile_results$neg_loglik), ]
   
-  # Find CI bounds
-  above_threshold <- profile_results$neg_loglik <= -ci_threshold
-  if (sum(above_threshold) >= 2) {
-    ci_indices <- which(above_threshold)
-    ci_lower <- profile_results$param_value[min(ci_indices)]
-    ci_upper <- profile_results$param_value[max(ci_indices)]
+  # Calculate confidence intervals
+  min_neg_loglik <- min(profile_results$neg_loglik)
+  profile_results$LR_stat <- 2 * (profile_results$neg_loglik - min_neg_loglik)
+  conf_threshold <- qchisq(0.95, df = 1)
+  
+  ci_data <- profile_results[profile_results$LR_stat <= conf_threshold, ]
+  if(nrow(ci_data) > 0) {
+    ci_lower <- min(ci_data$param_value)
+    ci_upper <- max(ci_data$param_value)
   } else {
-    # Wide CI if threshold not crossed
-    ci_lower <- min(value_range)
-    ci_upper <- max(value_range)
+    ci_lower <- min(profile_results$param_value)
+    ci_upper <- max(profile_results$param_value)
   }
   
-  # Create plot if requested
-  p <- NULL
-  if (plot) {
+  # Extract values for plotting
+  mle_x <- mle_params[param_to_profile]
+  true_x <- true_values[[param_to_profile]]
+  
+  # Create plots if requested
+  if(plot) {
+    # Set up parameter names and titles
+   # param_labels <- list(
+      #R0 = expression(R[0]),
+     # v = "CV",
+    #  t0 = expression("t0"),
+   #   c_value2 = "c"
+   # )
     param_labels <- list(
-      "R0" = expression(R[0]),
-      "v" = expression(nu), 
-      "t0" = expression(t[0]),
-      "c_value2" = expression(c[1])
+    R0 = expression(R[0]),           # R with subscript 0
+    v = expression(nu),              # Greek letter nu
+    t0 = expression(t[0]),           # t with subscript 0
+    c_value2 = expression(c[1])      # c with subscript 1
     )
     
-   
+    # Create customizable title
+    if(!is.null(custom_title)) {
+      profile_title <- custom_title
+    } else {
+      epidemic_type <- "Single Epidemic"
+      npi_text <- if(exists("c_value2_spec")) paste0("NPI = ", c_value2_spec) else ""
+      profile_title <- paste0("Profile for ", param_labels[[param_to_profile]], 
+                              " (", epidemic_type, 
+                              if(npi_text != "") paste0(", ", npi_text), ")")
+    }
+    
+    # Create the profile likelihood plot with enhanced visibility
     p <- ggplot(profile_results, aes(x = param_value, y = -neg_loglik)) +
       geom_line(color = "steelblue", size = 1.2) +
       #geom_point(size = 2.5, color = "darkblue", alpha = 0.8) +
@@ -891,18 +948,20 @@ profile_likelihood_reducedm <- function(sim_data, param_to_profile,
     
     
     
-    if (plot) print(p)
+    
+    
+    print(p)
   }
   
+  # Return results
   return(list(
     profile_results = profile_results,
-    profile_plot = p,
-    mle = mle_params[param_to_profile],
+    profile_plot = if(plot) p else NULL,
+    mle = mle_params,
     ci = c(ci_lower, ci_upper),
     ci_width = ci_upper - ci_lower
   ))
 }
-
 
 
 
