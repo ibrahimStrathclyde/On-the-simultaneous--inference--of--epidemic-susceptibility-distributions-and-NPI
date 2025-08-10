@@ -137,8 +137,7 @@ for (pkg in required_packages) {
   install_if_missing(pkg)
 }
 
-cat("\nAll required packages are now available.\n")
-cat("You can now run the analysis scripts.\n")
+
 ```
 
 **.gitignore:**
@@ -180,4 +179,5 @@ figures/*.png
 !results/.gitkeep
 !figures/.gitkeep
 ```
+
 
