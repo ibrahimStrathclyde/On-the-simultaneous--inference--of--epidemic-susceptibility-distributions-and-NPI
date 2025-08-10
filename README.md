@@ -151,7 +151,7 @@ If you use this code or findings in your research, please cite:
 @article{mohammed2025simultaneous,
   title={On the simultaneous inference of susceptibility distributions and intervention effects from epidemic curves},
   author={Mohammed, Ibrahim and Robertson, Chris and Gomes, M. Gabriela M.},
-  journal={Epidemics},
+  journal={},
   year={2025},
   note={Preprint submitted}
 }
@@ -181,3 +181,4 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
 
 
 For questions about the code or methods, please open an issue on this repository or contact the authors through their institutional affiliations.
+
