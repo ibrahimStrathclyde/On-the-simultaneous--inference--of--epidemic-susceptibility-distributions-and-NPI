@@ -35,8 +35,8 @@ epidemic-susceptibility-inference/
 ├── figures/                              # Generated plots and visualizations
 │   └── .gitkeep                          # Track directory in git
 └── paper/                                # Publication files
-    ├── ibrahim_1wave_epidemic.pdf        # Main manuscript
-    └── ibrahim_1wave_SupM.pdf             # Supplementary material
+    ├── ibrahim_1wave_epidemics.pdf        # Main manuscript
+    └── ibrahim_1wave_SM.pdf             # Supplementary material
 ```
 
 ## Key Models and Methods
@@ -178,5 +178,6 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
   - Partially funded by FCT – Fundação para a Ciência e a Tecnologia, I.P.
 
 ## Support
+
 
 For questions about the code or methods, please open an issue on this repository or contact the authors through their institutional affiliations.
