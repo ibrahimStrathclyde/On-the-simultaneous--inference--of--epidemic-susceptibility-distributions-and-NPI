@@ -1,7 +1,7 @@
-# File Organization for GitHub Repository
+
 ## Simultaneous Inference of Susceptibility Distributions and Intervention Effects from Epidemic Curves
 
-This document outlines the recommended organization and file structure for the GitHub repository containing the analysis code for the ibrahim_1wave_epidemics.pdf paper.
+
 
 ## Repository Structure
 
@@ -35,9 +35,7 @@ epidemic-susceptibility-inference/
     └── ibrahim_1wave_SM.pdf             # Supplementary material
 ```
 
-## File Mapping from Original to Repository
 
-### Original Files → Repository Organization
 
 **Core Function Files:**
 - `MaxLik_fit_functions_reduced_model.R` → `R/MaxLik_fit_functions_reduced_model.R`
@@ -58,7 +56,6 @@ epidemic-susceptibility-inference/
 - Contains all maximum likelihood estimation functions
 - Functions for both homogeneous and heterogeneous SEIR models
 - Profile likelihood calculation functions
-- Should include clear function documentation with parameters and return values
 
 **utility_functions.R:**
 - Model transformation functions
@@ -68,7 +65,7 @@ epidemic-susceptibility-inference/
 
 ### 2. Analysis Scripts (scripts/ directory)
 
-Each script include:
+Each script includes:
 - **Header comment** explaining the script's purpose
 - **Library loading section** with all required packages
 - **Source statements** to load functions from R/ directory
@@ -183,3 +180,4 @@ figures/*.png
 !results/.gitkeep
 !figures/.gitkeep
 ```
+
