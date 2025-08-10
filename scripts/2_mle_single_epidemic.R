@@ -29,8 +29,8 @@ library(RColorBrewer)
 library(viridis)
 
 # Source required functions
-source("utility_functions.R")
-source("MaxLik_fit_functions_reduced_model.R")
+source("R/utility_functions.R")
+source("R/MaxLik_functions_reduced_model.R")
 
 # ===============================================================================
 # SECTION 1: SETUP AND PARAMETERS
