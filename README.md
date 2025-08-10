@@ -22,7 +22,7 @@ epidemic-susceptibility-inference/
 ├── .gitignore                            # Git ignore rules
 ├── install_packages.R                    # Script to install required packages
 ├── R/                                    # Core functions
-│   ├── MaxLik_fit_functions_reduced_model.R  # Maximum likelihood fitting functions
+│   ├── MaxLik_functions_reduced_model.R  # Maximum likelihood fitting functions
 │   └── utility_functions.R                   # Utility functions for modeling
 ├── scripts/                              # Analysis scripts
 │   ├── 1_baseline_cases.R                # Baseline analysis (Case I and II)
@@ -181,5 +181,6 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
 
 
 For questions about the code or methods, please open an issue on this repository or contact the authors through their institutional affiliations.
+
 
 
