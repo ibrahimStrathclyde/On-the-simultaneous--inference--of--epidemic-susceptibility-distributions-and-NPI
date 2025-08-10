@@ -132,16 +132,16 @@ source("scripts/5_two_epidemics_correlation.R")
 
 4. **Profile likelihood analysis** reveals improved confidence intervals when using multiple epidemic datasets
 
-## File Mapping
+## Scripts Files 
 
 Original files → Repository organization:
-- `Case_I_and_II_b.R` → `scripts/1_baseline_cases.R`
-- `MLE_profiling_reduced_cha4.R` → `scripts/2_mle_single_epidemic.R`
-- `MLE_2epi_profiling_reduced_ch4.R` → `scripts/3_mle_two_epidemics.R`
-- `single_epidemic_investigation_correlation_I0.R` → `scripts/4_single_epidemic_correlation.R`
-- `Two_epidemics_investigation_correlation_I0.R` → `scripts/5_two_epidemics_correlation.R`
-- `MaxLik_fit_functions_reduced_model.R` → `R/MaxLik_fit_functions_reduced_model.R`
-- `utility_functions.R` → `R/utility_functions.R`
+ `scripts/1_baseline_cases.R`
+- `scripts/2_mle_single_epidemic.R`
+`scripts/3_mle_two_epidemics.R`
+ `scripts/4_single_epidemic_correlation.R`
+`scripts/5_two_epidemics_correlation.R`
+`R/MaxLik_fit_functions_reduced_model.R`
+ `R/utility_functions.R`
 
 ## Citation
 
@@ -181,4 +181,5 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
 
 
 For questions about the code or methods, please open an issue on this repository or contact the authors through their institutional affiliations.
+
 
