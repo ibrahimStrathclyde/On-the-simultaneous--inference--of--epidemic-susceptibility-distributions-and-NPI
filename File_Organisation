@@ -1,0 +1,185 @@
+# File Organization for GitHub Repository
+## Simultaneous Inference of Susceptibility Distributions and Intervention Effects from Epidemic Curves
+
+This document outlines the recommended organization and file structure for the GitHub repository containing the analysis code for the ibrahim_1wave_epidemics.pdf paper.
+
+## Repository Structure
+
+```
+epidemic-susceptibility-inference/
+├── README.md                             # Repository documentation
+├── LICENSE.txt                           # MIT License
+├── .gitignore                            # Git ignore rules for R projects
+├── install_packages.R                    # Script to install required packages
+├── R/                                    # Core function files
+│   ├── MaxLik_fit_functions_reduced_model.R  # Maximum likelihood fitting functions
+│   └── utility_functions.R                   # Utility functions for modeling
+├── scripts/                              # Analysis scripts (run in order)
+│   ├── 1_baseline_cases.R                # Baseline analysis (Case I and II)
+│   ├── 2_mle_single_epidemic.R           # MLE profiling for single epidemic
+│   ├── 3_mle_two_epidemics.R             # MLE profiling for two epidemics
+│   ├── 4_single_epidemic_correlation.R   # Initial condition impact (single)
+│   └── 5_two_epidemics_correlation.R     # Initial condition impact (two epidemics)
+├── results/                              # Generated numerical results
+│   ├── .gitkeep                          # Track directory in git
+│   ├── mle_estimates/                     # MLE parameter estimates
+│   ├── correlation_matrices/              # Parameter correlation results
+│   └── profile_likelihoods/               # Profile likelihood curves
+├── figures/                              # Generated plots and visualizations
+│   ├── .gitkeep                          # Track directory in git
+│   ├── epidemic_curves/                   # Epidemic trajectory plots
+│   ├── parameter_correlations/            # Correlation visualizations
+│   └── profile_plots/                     # Profile likelihood plots
+└── paper/                                # Publication files
+    ├── ibrahim_1wave_epidemics.pdf        # Main manuscript
+    └── ibrahim_1wave_SM.pdf             # Supplementary material
+```
+
+## File Mapping from Original to Repository
+
+### Original Files → Repository Organization
+
+**Core Function Files:**
+- `MaxLik_fit_functions_reduced_model.R` → `R/MaxLik_fit_functions_reduced_model.R`
+- `utility_functions.R` → `R/utility_functions.R`
+
+**Analysis Scripts:**
+`scripts/1_baseline_cases.R`
+`scripts/2_mle_single_epidemic.R`
+ `scripts/3_mle_two_epidemics.R`
+`scripts/4_single_epidemic_correlation.R`
+`scripts/5_two_epidemics_correlation.R`
+
+## File Content Guidelines
+
+### 1. Function Files (R/ directory)
+
+**MaxLik_fit_functions_reduced_model.R:**
+- Contains all maximum likelihood estimation functions
+- Functions for both homogeneous and heterogeneous SEIR models
+- Profile likelihood calculation functions
+- Should include clear function documentation with parameters and return values
+
+**utility_functions.R:**
+- Model transformation functions
+- Data preprocessing utilities
+- Plotting helper functions
+- Parameter conversion utilities
+
+### 2. Analysis Scripts (scripts/ directory)
+
+Each script include:
+- **Header comment** explaining the script's purpose
+- **Library loading section** with all required packages
+- **Source statements** to load functions from R/ directory
+- **Clear section headers** organizing the analysis steps
+- **Parameter definitions** with explanatory comments
+- **Results saving** to appropriate subdirectories
+- **Novice-friendly comments** explaining R code concepts
+
+**Script-specific content:**
+
+**1_baseline_cases.R:**
+- Implements Cases I and II baseline analysis
+- Compares homogeneous vs heterogeneous models
+- Generates epidemic curves for different scenarios
+
+**2_mle_single_epidemic.R:**
+- Single epidemic MLE parameter estimation
+- Profile likelihood analysis for individual parameters
+- Parameter correlation assessment
+
+**3_mle_two_epidemics.R:**
+- Two concurrent epidemics MLE fitting
+- Comparative analysis of identifiability improvement
+- Joint parameter estimation across epidemics
+
+**4_single_epidemic_correlation.R:**
+- Investigation of initial condition effects on correlations
+- Sensitivity analysis for single epidemic scenarios
+- Correlation matrix visualization
+
+**5_two_epidemics_correlation.R:**
+- Initial condition impact analysis for two epidemics
+- Comparative correlation analysis
+- Demonstration of identifiability improvement
+
+### 3. Supporting Files
+
+**install_packages.R:**
+```r
+# install_packages.R
+# Script to install all required packages for epidemic modeling analysis
+
+# Function to install packages if not already installed
+install_if_missing <- function(pkg) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    install.packages(pkg)
+    cat(paste("Package", pkg, "installed.\n"))
+  } else {
+    cat(paste("Package", pkg, "already installed.\n"))
+  }
+}
+
+# List of required packages
+required_packages <- c(
+  "deSolve",        # Differential equation solving
+  "maxLik",         # Maximum likelihood estimation
+  "ggplot2",        # Graphics
+  "dplyr",          # Data manipulation
+  "tidyr",          # Data tidying
+  "gridExtra",      # Multiple plot arrangement
+  "MASS",           # Statistical functions
+  "viridis",        # Color scales
+  "RColorBrewer"    # Additional color palettes
+)
+
+# Install missing packages
+cat("Checking and installing required packages...\n")
+for (pkg in required_packages) {
+  install_if_missing(pkg)
+}
+
+cat("\nAll required packages are now available.\n")
+cat("You can now run the analysis scripts.\n")
+```
+
+**.gitignore:**
+```
+# R specific files
+.Rhistory
+.RData
+.Rproj.user
+*.Rproj
+
+# Output files
+*.pdf
+*.png
+*.jpg
+*.eps
+*.ps
+
+# Temporary files
+*~
+.DS_Store
+Thumbs.db
+
+# Results that are generated
+
+1epi/*.csv
+2epi/*.csv
+1epi/*.rds
+2epi/*.rds
+
+figures/*.pdf
+figures/*.png
+
+results/*.csv
+results/*.rds
+figures/*.pdf
+figures/*.png
+
+# Keep directory structure but ignore generated content
+!results/.gitkeep
+!figures/.gitkeep
+```
