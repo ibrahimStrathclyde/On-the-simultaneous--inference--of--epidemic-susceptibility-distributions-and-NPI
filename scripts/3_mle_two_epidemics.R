@@ -28,8 +28,8 @@ library(RColorBrewer)
 library(viridis)
 
 # Source required functions
-source("utility_functions.R")
-source("MaxLik_fit_functions_reduced_model.R")
+source("R/utility_functions.R")
+source("R/MaxLik_functions_reduced_model.R")
 
 # ===============================================================================
 # SECTION 1: SETUP AND PARAMETERS
@@ -67,7 +67,7 @@ t2_spec <- 99                   # Time when intervention ends
 t3_spec <- t2_spec + 1          # Time when transmission returns to baseline
 tfinal_spec <- t3_spec          # Final simulation time
 c_value1_spec <- 1              # Baseline transmission factor
-c_value2_spec <- 0.3            # Intervention strength (80% reduction)
+c_value2_spec <- 0.3            # Intervention strength (70% reduction)
 c_value3_spec <- 1              # Post-intervention transmission factor
 
 # Two epidemic setup - different initial conditions
@@ -108,7 +108,7 @@ assign("initial_state_1", initial_state_1, envir = .GlobalEnv)
 assign("initial_state_2", initial_state_2, envir = .GlobalEnv)
 
 # Analysis settings
-n_datasets <- 10                # Number of datasets to analyze for robustness
+n_datasets <- 10                # Number of datasets to analyze for robustness adjust to 200 for the paper.
 n_profile_points <- 15          # Number of points for profile likelihood
 
 # Storage for results across datasets
@@ -196,7 +196,7 @@ for (dataset_id in 1:n_datasets) {
       sim_data_small = sim_data_small,
       param_to_profile = "v",
       n_points = n_profile_points,
-      plot = T  # Don't plot individual datasets
+      plot = FALSE  # Don't plot individual datasets
     )
   }, error = function(e) {
     cat("    Error in CV profile:", e$message, "\n")
@@ -226,7 +226,7 @@ for (dataset_id in 1:n_datasets) {
       sim_data_small = sim_data_small,
       param_to_profile = "R0",
       n_points = n_profile_points,
-      plot = FALSE
+      plot = TRUE # Plot the profile for R0 
     )
   }, error = function(e) {
     cat("    Error in R0 profile:", e$message, "\n")
@@ -513,4 +513,5 @@ cat("- See results/ and figures/ directories for detailed outputs\n")
 
 # ===============================================================================
 # END OF SCRIPT
+
 # ===============================================================================
