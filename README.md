@@ -148,12 +148,18 @@ Original files → Repository organization:
 If you use this code or findings in your research, please cite:
 
 ```bibtex
-@article{mohammed2025simultaneous,
-  title={On the simultaneous inference of susceptibility distributions and intervention effects from epidemic curves},
-  author={Mohammed, Ibrahim and Robertson, Chris and Gomes, M. Gabriela M.},
-  journal={},
-  year={2025},
-  note={Preprint submitted}
+@article{MOHAMMED2026100911,
+title = {On the simultaneous inference of susceptibility distributions and intervention effects from epidemic curves},
+journal = {Epidemics},
+volume = {55},
+pages = {100911},
+year = {2026},
+issn = {1755-4365},
+doi = {https://doi.org/10.1016/j.epidem.2026.100911},
+url = {https://www.sciencedirect.com/science/article/pii/S1755436526000277},
+author = {Ibrahim Mohammed and Chris Robertson and M. Gabriela M. Gomes},
+keywords = {Individual variation, Heterogeneity, Epidemic model, Parameter estimation, Identifiability},
+abstract = {Susceptible–Exposed–Infectious–Recovered (SEIR) models with inter-individual variation in susceptibility or exposure to infection were proposed early in the COVID-19 pandemic as a potential element of the mathematical/statistical toolset available to policy development. In comparison with other models employed at the time, those designed to fully estimate the effects of such heterogeneity tended to predict small epidemic waves and hence require less containment to achieve the same outcomes. However, these models never made it to mainstream COVID-19 policy making due to lack of prior validation of their inference capabilities. Here we report the results of the first systematic investigation of this matter in idealized scenarios created with synthetic data. We simulate datasets using the model with strategically chosen parameter values, and then conduct maximum likelihood estimation to assess how well we can retrieve the assumed parameter values. Parameter uncertainties were found to markedly reduce when concurrently fitting multiple epidemics with shared parameters, suggesting a general methodological approach that can be further developed to tackle real-world questions.}
 }
 ```
 
